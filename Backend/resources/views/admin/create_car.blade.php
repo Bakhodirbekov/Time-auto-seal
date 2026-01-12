@@ -38,8 +38,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Narxi ($)</label>
-                        <input type="number" name="price" value="{{ old('price') }}" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition" placeholder="12000">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Narxi (so'm)</label>
+                        <input type="number" name="price" value="{{ old('price') }}" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition" placeholder="15000000">
                     </div>
 
                     <div>

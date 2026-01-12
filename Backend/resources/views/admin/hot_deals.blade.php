@@ -28,7 +28,7 @@
                         <div class="font-medium text-gray-800">{{ $car->title }}</div>
                         <div class="text-xs text-red-500 font-bold uppercase tracking-wider"><i class="fas fa-bolt"></i> HOT DEAL</div>
                     </td>
-                    <td class="px-6 py-4 text-gray-700">${{ number_format($car->price) }}</td>
+                    <td class="px-6 py-4 text-gray-700">{{ number_format($car->price) }} so'm</td>
                     <td class="px-6 py-4 text-sm text-gray-600">{{ $car->category->name ?? 'Noma\'lum' }}</td>
                     <td class="px-6 py-4">
                         <div class="flex space-x-2">

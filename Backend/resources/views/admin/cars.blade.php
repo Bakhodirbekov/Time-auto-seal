@@ -40,7 +40,7 @@
                         {{ $car->title }}
                         <div class="text-xs text-gray-500">{{ $car->brand }} {{ $car->model }} ({{ $car->year }})</div>
                     </td>
-                    <td class="px-6 py-4 text-gray-700">${{ number_format($car->price) }}</td>
+                    <td class="px-6 py-4 text-gray-700">{{ number_format($car->price) }} so'm</td>
                     <td class="px-6 py-4">
                         @if($car->contact_phone)
                             <a href="tel:{{ $car->contact_phone }}" class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg transition text-sm font-medium">
