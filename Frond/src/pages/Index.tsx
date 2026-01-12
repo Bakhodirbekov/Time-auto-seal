@@ -21,15 +21,21 @@ const Index = () => {
     const fetchCars = async () => {
       setLoading(true);
       try {
-        const data = await carService.getCars({
+        console.log('Fetching cars from API...');
+        const response = await carService.getCars({
           search: searchQuery,
           min_price: filters.minPrice,
           max_price: filters.maxPrice,
-          year: filters.minYear, // Mapping minYear to year filter for now
+          year: filters.minYear,
           fuel_type: filters.fuelType,
           transmission: filters.transmission,
         });
-        setCars(data.data || []);
+        
+        console.log('API Response:', response);
+        // Laravel paginate() returns { data: [...] }
+        const carData = response.data || (Array.isArray(response) ? response : []);
+        console.log('Parsed car data:', carData);
+        setCars(carData);
       } catch (error) {
         console.error('Failed to fetch cars:', error);
       } finally {
@@ -73,7 +79,7 @@ const Index = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
             </div>
           ) : filteredCars.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {filteredCars.map(car => (
                 <CarCard key={car.id} car={car} />
               ))}

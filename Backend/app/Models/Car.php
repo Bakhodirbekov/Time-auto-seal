@@ -27,6 +27,7 @@ class Car extends Model
         'transmission',
         'condition',
         'location',
+        'contact_phone',
         'status',
         'is_hot_deal',
         'is_featured',

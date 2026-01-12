@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, phone: string, email: string, password: string) => Promise<boolean>;
@@ -21,10 +22,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Load user from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('auth_token');
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('auth_token');
+      if (storedUser && token) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error('Failed to parse user from localStorage:', error);
+      localStorage.removeItem('user');
+      localStorage.removeItem('auth_token');
     }
   }, []);
 
@@ -37,7 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Login successful!');
       return true;
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      const validationErrors = error.response?.data?.errors;
+      
+      if (validationErrors) {
+        const firstError = Object.values(validationErrors)[0] as string[];
+        toast.error(firstError[0] || errorMessage);
+      } else {
+        toast.error(errorMessage);
+      }
       return false;
     }
   };
@@ -57,7 +72,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Registration successful!');
       return true;
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const validationErrors = error.response?.data?.errors;
+      
+      if (validationErrors) {
+        const firstError = Object.values(validationErrors)[0] as string[];
+        toast.error(firstError[0] || errorMessage);
+      } else {
+        toast.error(errorMessage);
+      }
       return false;
     }
   };
@@ -80,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         isAuthenticated: !!user,
         login,
         register,

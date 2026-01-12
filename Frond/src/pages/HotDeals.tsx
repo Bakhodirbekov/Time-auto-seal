@@ -16,8 +16,9 @@ export default function HotDeals() {
   useEffect(() => {
     const fetchHotDeals = async () => {
       try {
-        const data = await carService.getCars({ hot_deals: true });
-        setCars(data.data || []);
+        const response = await carService.getCars({ hot_deals: true });
+        const carData = response.data || (Array.isArray(response) ? response : []);
+        setCars(carData);
       } catch (error) {
         console.error('Failed to fetch hot deals:', error);
       } finally {
@@ -64,7 +65,7 @@ export default function HotDeals() {
                     {hotDeals.length} ta
                   </span>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   {hotDeals.map(car => (
                     <CarCard key={car.id} car={car} />
                   ))}
@@ -82,7 +83,7 @@ export default function HotDeals() {
                     {urgentDeals.length} ta
                   </span>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   {urgentDeals.map(car => (
                     <CarCard key={car.id} car={car} />
                   ))}

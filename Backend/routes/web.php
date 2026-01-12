@@ -18,6 +18,7 @@ Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admi
     Route::get('/cars/{id}/edit', [AdminPanelController::class, 'carsEdit'])->name('cars.edit');
     Route::put('/cars/{id}', [AdminPanelController::class, 'carsUpdate'])->name('cars.update');
     Route::delete('/cars/{id}', [AdminPanelController::class, 'carsDestroy'])->name('cars.destroy');
+    Route::delete('/cars/images/{id}', [AdminPanelController::class, 'deleteCarImage'])->name('cars.images.delete');
     Route::post('/cars/{id}/approve', [AdminPanelController::class, 'carsApprove'])->name('cars.approve');
     Route::post('/cars/{id}/toggle-hot-deal', [AdminPanelController::class, 'toggleHotDeal'])->name('cars.toggle-hot-deal');
 

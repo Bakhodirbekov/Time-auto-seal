@@ -19,7 +19,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.cars.update', $car->id) }}" method="POST">
+            <form action="{{ route('admin.cars.update', $car->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -88,6 +88,12 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Aloqa telefon raqami</label>
+                        <input type="tel" name="contact_phone" value="{{ old('contact_phone', $car->contact_phone) }}" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition" placeholder="+998901234567">
+                        <p class="mt-1 text-xs text-gray-500">Xaridorlar qo'ng'iroq qilishi uchun</p>
+                    </div>
+
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tavsif</label>
                         <textarea name="description" rows="4" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition">{{ old('description', $car->description) }}</textarea>
@@ -99,9 +105,20 @@
                             @foreach($car->images as $image)
                                 <div class="relative group">
                                     <img src="{{ asset('storage/' . $image->image_path) }}" class="w-full h-24 object-cover rounded-lg">
+                                    <button type="button" onclick="deleteImage({{ $image->id }})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
                                 </div>
                             @endforeach
                         </div>
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Yangi rasmlar qo'shish</label>
+                        <input type="file" name="images[]" multiple accept="image/*" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition">
+                        <p class="text-xs text-gray-500 mt-1">Ko'p rasmlarni birga tanlashingiz mumkin (JPEG, PNG, JPG, GIF - max 2MB)</p>
                     </div>
                 </div>
 
@@ -113,4 +130,29 @@
         </div>
     </div>
 </div>
+
+<script>
+function deleteImage(imageId) {
+    if (confirm('Rasmni o\'chirmoqchimisiz?')) {
+        fetch(`/admin/cars/images/${imageId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Xatolik yuz berdi!');
+            }
+        })
+        .catch(error => {
+            alert('Xatolik yuz berdi!');
+        });
+    }
+}
+</script>
 @endsection

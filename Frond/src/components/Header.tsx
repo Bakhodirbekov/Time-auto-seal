@@ -27,7 +27,7 @@ export function Header() {
 
           {isAuthenticated && (user?.role === 'admin' || user?.role === 'moderator') && (
             <a 
-              href="http://localhost:8000/admin/dashboard" 
+              href="http://127.0.0.1:8000/admin/dashboard" 
               target="_blank" 
               rel="noopener noreferrer"
               className="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center"

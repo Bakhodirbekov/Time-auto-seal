@@ -4,8 +4,10 @@ import { useCountdown } from '@/hooks/useCountdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { Heart, MapPin, Gauge, Fuel } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { favoriteService } from '@/services/favoriteService';
+import { toast } from '@/hooks/use-toast';
 
 interface CarCardProps {
   car: Car;
@@ -16,7 +18,21 @@ export function CarCard({ car }: CarCardProps) {
   const { isExpired } = useCountdown(car.timer_end_at);
   const [isFavorite, setIsFavorite] = useState(false);
   const [imageIndex, setImageIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const response = await favoriteService.checkFavorite(car.id);
+        setIsFavorite(response.is_favorite);
+      } catch (error) {
+        console.error('Failed to check favorite:', error);
+      }
+    };
+    checkFavorite();
+  }, [car.id, isAuthenticated]);
 
   const canViewPrice = car.price_visible || isExpired;
 
@@ -24,8 +40,8 @@ export function CarCard({ car }: CarCardProps) {
     return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m';
   };
 
-  const primaryImage = car.images.find(img => img.is_primary)?.image_url || car.images[0]?.image_url;
-  const allImageUrls = car.images.map(img => img.image_url);
+  const primaryImage = car.images?.find(img => img.is_primary)?.image_url || car.images?.[0]?.image_url;
+  const allImageUrls = car.images?.map(img => img.image_url) || [];
 
   const handleClick = () => {
     if (!isAuthenticated) {
@@ -35,13 +51,33 @@ export function CarCard({ car }: CarCardProps) {
     navigate(`/car/${car.id}`);
   };
 
-  const handleFavorite = (e: React.MouseEvent) => {
+  const handleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
-    setIsFavorite(!isFavorite);
+    
+    if (loading) return;
+    setLoading(true);
+    
+    try {
+      if (isFavorite) {
+        await favoriteService.removeFavorite(car.id);
+        toast({ description: 'Sevimlilardan o\'chirildi' });
+      } else {
+        await favoriteService.addFavorite(car.id);
+        toast({ description: 'Sevimlilarga qo\'shildi ❤️' });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      toast({ 
+        description: 'Xatolik yuz berdi', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -139,16 +175,18 @@ export function CarCard({ car }: CarCardProps) {
             <MapPin className="w-3 h-3" />
             {car.location || 'Noma\'lum'}
           </div>
-          {car.mileage !== undefined && (
+          {car.mileage !== undefined && car.mileage !== null && (
             <div className="flex items-center gap-1">
               <Gauge className="w-3 h-3" />
               {car.mileage.toLocaleString()} km
             </div>
           )}
-          <div className="flex items-center gap-1">
-            <Fuel className="w-3 h-3" />
-            {car.fuel_type}
-          </div>
+          {car.fuel_type && (
+            <div className="flex items-center gap-1">
+              <Fuel className="w-3 h-3" />
+              {car.fuel_type}
+            </div>
+          )}
         </div>
       </div>
     </div>

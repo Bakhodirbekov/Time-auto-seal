@@ -20,7 +20,7 @@ export default function Search() {
     const fetchSearchResults = async () => {
       setLoading(true);
       try {
-        const data = await carService.getCars({
+        const response = await carService.getCars({
           search: searchQuery,
           min_price: filters.minPrice,
           max_price: filters.maxPrice,
@@ -28,7 +28,9 @@ export default function Search() {
           fuel_type: filters.fuelType,
           transmission: filters.transmission,
         });
-        setCars(data.data || []);
+        
+        const carData = response.data || (Array.isArray(response) ? response : []);
+        setCars(carData);
       } catch (error) {
         console.error('Search failed:', error);
       } finally {
@@ -69,7 +71,7 @@ export default function Search() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
             </div>
           ) : cars.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {cars.map(car => (
                 <CarCard key={car.id} car={car} />
               ))}
@@ -94,4 +96,8 @@ export default function Search() {
       
       <AuthModal 
         isOpen={showAuthModal}
-        onClose={() => setShowA
+        onClose={() => setShowAuthModal(false)}
+      />
+    </div>
+  );
+}

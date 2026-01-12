@@ -6,7 +6,7 @@ interface CategoryTabsProps {
   onChange: (category: CategoryName | 'Barchasi') => void;
 }
 
-const allCategories: (CategoryName | 'Barchasi')[] = ['Barchasi', 'Sedan', 'SUV', 'Hatchback', 'Coupe', 'Electric'];
+const allCategories: (CategoryName | 'Barchasi')[] = ['Barchasi', 'Sedan', 'SUV', 'Hatchback', 'Coupe', 'Electric', 'Truck'];
 
 const categoryIcons: Record<CategoryName | 'Barchasi', string> = {
   'Barchasi': '🚗',
@@ -15,6 +15,7 @@ const categoryIcons: Record<CategoryName | 'Barchasi', string> = {
   'Hatchback': '🚕',
   'Coupe': '🏎️',
   'Electric': '⚡',
+  'Truck': '🚛',
 };
 
 export function CategoryTabs({ selected, onChange }: CategoryTabsProps) {

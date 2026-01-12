@@ -3,43 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Admin Panel – InsofAuto</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#0D1B2A",
-                        secondary: "#1B263B",
-                        accent: "#FCA311",
-                        background: "#F5F7FA"
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
-                    }
-                }
-            }
-        }
-
-        function toggleSidebar() {
-            const sidebar = document.querySelector('aside');
-            sidebar.classList.toggle('hidden');
-        }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar { transition: all 0.3s ease; }
-        .nav-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; transition: background 0.2s; color: #94a3b8; text-decoration: none; }
-        .nav-item:hover { background: rgba(255, 255, 255, 0.1); color: white; }
-        .nav-item.active { background: #FCA311; color: white; }
-        .stat-card:hover { transform: translateY(-2px); transition: transform 0.2s ease; }
-    </style>
     <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 <body class="min-h-screen bg-background">
+    <!-- Success/Error Messages -->
+    <?php if(session('success')): ?>
+    <div id="successToast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3 animate-slide-in">
+        <i class="fas fa-check-circle"></i>
+        <span><?php echo e(session('success')); ?></span>
+    </div>
+    <script>
+        setTimeout(() => {
+            const toast = document.getElementById('successToast');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }
+        }, 3000);
+    </script>
+    <?php endif; ?>
+
+    <?php if(session('error')): ?>
+    <div id="errorToast" class="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3 animate-slide-in">
+        <i class="fas fa-exclamation-circle"></i>
+        <span><?php echo e(session('error')); ?></span>
+    </div>
+    <script>
+        setTimeout(() => {
+            const toast = document.getElementById('errorToast');
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s';
+                setTimeout(() => toast.remove(), 500);
+            }
+        }, 3000);
+    </script>
+    <?php endif; ?>
     <div class="flex h-screen">
         <!-- Sidebar Navigation -->
         <aside class="sidebar bg-primary text-white w-64 flex flex-col flex-shrink-0">

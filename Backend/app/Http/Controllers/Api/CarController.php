@@ -57,6 +57,16 @@ class CarController extends Controller
             $query->where('year', $request->year);
         }
 
+        // Filter by fuel type
+        if ($request->has('fuel_type') && $request->fuel_type) {
+            $query->where('fuel_type', $request->fuel_type);
+        }
+
+        // Filter by transmission
+        if ($request->has('transmission') && $request->transmission) {
+            $query->where('transmission', $request->transmission);
+        }
+
         // Sort
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');

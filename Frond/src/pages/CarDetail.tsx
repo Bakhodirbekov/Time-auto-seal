@@ -5,8 +5,10 @@ import { useCountdown } from '@/hooks/useCountdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { carService } from '@/services/carService';
+import { favoriteService } from '@/services/favoriteService';
 import { Car } from '@/types/car';
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 export default function CarDetail() {
   const { id } = useParams();
@@ -16,6 +18,7 @@ export default function CarDetail() {
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -32,6 +35,19 @@ export default function CarDetail() {
 
     fetchCar();
   }, [id]);
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!isAuthenticated || !id) return;
+      try {
+        const response = await favoriteService.checkFavorite(Number(id));
+        setIsFavorite(response.is_favorite);
+      } catch (error) {
+        console.error('Failed to check favorite:', error);
+      }
+    };
+    checkFavorite();
+  }, [id, isAuthenticated]);
 
   const { isExpired } = useCountdown(car?.timer_end_at);
   const canViewPrice = car?.price_visible || isExpired;
@@ -56,23 +72,71 @@ export default function CarDetail() {
     return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m';
   };
 
+  const handleFavorite = async () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+    
+    if (favoriteLoading || !id) return;
+    setFavoriteLoading(true);
+    
+    try {
+      if (isFavorite) {
+        await favoriteService.removeFavorite(Number(id));
+        toast({ description: 'Sevimlilardan o\'chirildi' });
+      } else {
+        await favoriteService.addFavorite(Number(id));
+        toast({ description: 'Sevimlilarga qo\'shildi ❤️' });
+      }
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      toast({ 
+        description: 'Xatolik yuz berdi', 
+        variant: 'destructive' 
+      });
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${car?.brand} ${car?.model}`,
+      text: `${car?.brand} ${car?.model} - ${car?.year} yil`,
+      url: window.location.href
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({ description: 'Havola nusxalandi!' });
+      }
+    } catch (error) {
+      console.log('Share failed:', error);
+    }
+  };
+
   const handleContact = () => {
     if (!isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
-    if (!isExpired && !car.price_visible) {
+    if (!isExpired && !car?.price_visible) {
       return;
     }
-    // Handle contact logic
-    window.location.href = `tel:${car.user?.phone || '+998901234567'}`;
+    // Use contact_phone if available, otherwise fallback to user phone
+    const phoneNumber = car?.contact_phone || car?.user?.phone || '+998901234567';
+    window.location.href = `tel:${phoneNumber}`;
   };
 
-  const allImageUrls = car.images.map(img => img.image_url);
+  const allImageUrls = car.images?.map(img => img.image_url) || [];
 
   const specs = [
     { icon: Calendar, label: 'Yil', value: car.year },
-    { icon: Gauge, label: 'Masofa', value: car.mileage ? `${car.mileage.toLocaleString()} km` : 'Noma\'lum' },
+    { icon: Gauge, label: 'Masofa', value: car.mileage && car.mileage !== null ? `${car.mileage.toLocaleString()} km` : 'Noma\'lum' },
     { icon: Fuel, label: 'Yoqilg\'i', value: car.fuel_type || 'Noma\'lum' },
     { icon: Settings, label: 'Transmissiya', value: car.transmission || 'Noma\'lum' },
     { icon: Palette, label: 'Holati', value: car.condition || 'Noma\'lum' },
@@ -100,14 +164,18 @@ export default function CarDetail() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex gap-2">
-            <button className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center">
+            <button 
+              onClick={handleShare}
+              className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center">
               <Share2 className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setIsFavorite(!isFavorite)}
+              onClick={handleFavorite}
+              disabled={favoriteLoading}
               className={cn(
-                'w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center',
-                isFavorite ? 'bg-accent text-accent-foreground' : 'bg-card/90'
+                'w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center transition-all',
+                isFavorite ? 'bg-accent text-accent-foreground' : 'bg-card/90',
+                favoriteLoading && 'opacity-50 cursor-not-allowed'
               )}
             >
               <Heart className={cn('w-5 h-5', isFavorite && 'fill-current')} />

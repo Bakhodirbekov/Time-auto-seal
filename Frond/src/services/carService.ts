@@ -9,6 +9,8 @@ export interface CarFilters {
   min_price?: number;
   max_price?: number;
   year?: number;
+  fuel_type?: string;
+  transmission?: string;
   hot_deals?: boolean;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';

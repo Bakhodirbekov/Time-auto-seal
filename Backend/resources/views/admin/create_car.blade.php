@@ -88,6 +88,12 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Aloqa telefon raqami</label>
+                        <input type="tel" name="contact_phone" value="{{ old('contact_phone') }}" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition" placeholder="+998901234567">
+                        <p class="mt-1 text-xs text-gray-500">Xaridorlar qo'ng'iroq qilishi uchun</p>
+                    </div>
+
                     <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tavsif</label>
                         <textarea name="description" rows="4" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition" placeholder="Avtomobil haqida batafsil ma'lumot...">{{ old('description') }}</textarea>

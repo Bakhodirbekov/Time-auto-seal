@@ -24,6 +24,7 @@
                     <th class="px-6 py-4">Rasm</th>
                     <th class="px-6 py-4">Sarlavha</th>
                     <th class="px-6 py-4">Narxi</th>
+                    <th class="px-6 py-4">Telefon</th>
                     <th class="px-6 py-4">Kategoriya</th>
                     <th class="px-6 py-4">Status</th>
                     <th class="px-6 py-4">Amallar</th>
@@ -41,6 +42,17 @@
                         <div class="text-xs text-gray-500"><?php echo e($car->brand); ?> <?php echo e($car->model); ?> (<?php echo e($car->year); ?>)</div>
                     </td>
                     <td class="px-6 py-4 text-gray-700">$<?php echo e(number_format($car->price)); ?></td>
+                    <td class="px-6 py-4">
+                        <?php if($car->contact_phone): ?>
+                            <a href="tel:<?php echo e($car->contact_phone); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg transition text-sm font-medium">
+                                <i class="fas fa-phone"></i>
+                                <?php echo e($car->contact_phone); ?>
+
+                            </a>
+                        <?php else: ?>
+                            <span class="text-xs text-gray-400">Yo'q</span>
+                        <?php endif; ?>
+                    </td>
                     <td class="px-6 py-4 text-sm text-gray-600"><?php echo e($car->category->name ?? 'Noma\'lum'); ?></td>
                     <td class="px-6 py-4">
                         <?php if($car->status == 'pending'): ?>

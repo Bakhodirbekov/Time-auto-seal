@@ -2,11 +2,12 @@ import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { AuthModal } from '@/components/AuthModal';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Car, Heart, Settings, LogOut, ChevronRight, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { User, Heart, Settings, LogOut, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Profile() {
   const { showAuthModal, setShowAuthModal, isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
 
   if (!isAuthenticated) {
     return (
@@ -44,9 +45,8 @@ export default function Profile() {
   }
 
   const menuItems = [
-    { icon: Car, label: 'Mening e\'lonlarim', count: 0 },
-    { icon: Heart, label: 'Saralangan mashinalar', count: 0 },
-    { icon: Settings, label: 'Sozlamalar' },
+    { icon: Heart, label: 'Saralangan mashinalar', count: 0, path: '/favorites' },
+    { icon: Settings, label: 'Sozlamalar', path: '/settings' },
   ];
 
   return (
@@ -68,19 +68,13 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Add New Listing */}
-        <button className="w-full bg-accent text-accent-foreground rounded-2xl p-4 shadow-card flex items-center justify-center gap-2 font-semibold hover:bg-accent/90 transition-colors">
-          <Plus className="w-5 h-5" />
-          E'lon joylash
-        </button>
-
         {/* Menu Items */}
         <div className="bg-card rounded-2xl shadow-card divide-y divide-border overflow-hidden">
-          {menuItems.map(({ icon: Icon, label, count }) => (
+          {menuItems.map(({ icon: Icon, label, count, path }) => (
             <button
               key={label}
-              className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors"
-            >
+              onClick={() => path && navigate(path)}
+              className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                 <Icon className="w-5 h-5 text-muted-foreground" />
               </div>

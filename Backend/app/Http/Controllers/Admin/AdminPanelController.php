@@ -12,6 +12,8 @@ use App\Models\Setting;
 use App\Models\CarImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class AdminPanelController extends Controller
 {
@@ -95,49 +97,56 @@ class AdminPanelController extends Controller
 
     public function carsStore(Request $request)
     {
-        $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'brand' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'year' => 'required|integer',
-            'images' => 'required|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        try {
+            $request->validate([
+                'category_id' => 'required|exists:categories,id',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'price' => 'required|numeric|min:0',
+                'brand' => 'required|string|max:255',
+                'model' => 'required|string|max:255',
+                'year' => 'required|integer',
+                'contact_phone' => 'nullable|string|max:20',
+                'images' => 'required|array',
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        $car = Car::create([
-            'user_id' => auth()->id(),
-            'category_id' => $request->category_id,
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'year' => $request->year,
-            'fuel_type' => $request->fuel_type,
-            'transmission' => $request->transmission,
-            'condition' => $request->condition,
-            'mileage' => $request->mileage,
-            'status' => 'approved',
-            'price_visible' => false,
-        ]);
+            $car = Car::create([
+                'user_id' => auth()->id(),
+                'category_id' => $request->category_id,
+                'title' => $request->title,
+                'description' => $request->description,
+                'price' => $request->price,
+                'brand' => $request->brand,
+                'model' => $request->model,
+                'year' => $request->year,
+                'fuel_type' => $request->fuel_type,
+                'transmission' => $request->transmission,
+                'condition' => $request->condition,
+                'mileage' => $request->mileage,
+                'contact_phone' => $request->contact_phone,
+                'status' => 'approved',
+                'price_visible' => false,
+            ]);
 
-        $car->startTimer();
+            $car->startTimer();
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $image) {
-                $path = $image->store('cars', 'public');
-                $car->images()->create([
-                    'image_path' => $path,
-                    'is_primary' => $index === 0,
-                    'order' => $index,
-                ]);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $index => $image) {
+                    $path = $image->store('cars', 'public');
+                    $car->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => $index === 0,
+                        'order' => $index,
+                    ]);
+                }
             }
-        }
 
-        return redirect()->route('admin.cars')->with('success', 'Avtomobil muvaffaqiyatli qo\'shildi.');
+            return redirect()->route('admin.cars')->with('success', 'Avtomobil muvaffaqiyatli qo\'shildi.');
+        } catch (\Exception $e) {
+            Log::error('Car creation failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Xatolik yuz berdi: ' . $e->getMessage());
+        }
     }
 
     public function carsEdit($id)
@@ -149,8 +158,34 @@ class AdminPanelController extends Controller
 
     public function carsUpdate(Request $request, $id)
     {
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'brand' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'year' => 'required|integer',
+            'contact_phone' => 'nullable|string|max:20',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
         $car = Car::findOrFail($id);
-        $car->update($request->all());
+        $car->update($request->except('images'));
+
+        // Yangi rasmlarni qo'shish
+        if ($request->hasFile('images')) {
+            $existingCount = $car->images()->count();
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('cars', 'public');
+                $car->images()->create([
+                    'image_path' => $path,
+                    'is_primary' => ($existingCount === 0 && $index === 0),
+                    'order' => $existingCount + $index,
+                ]);
+            }
+        }
+
         return redirect()->route('admin.cars')->with('success', 'Avtomobil yangilandi.');
     }
 
@@ -269,5 +304,32 @@ class AdminPanelController extends Controller
         }
 
         return back()->withErrors(['email' => 'Email yoki parol xato.']);
+    }
+
+    public function deleteCarImage($id)
+    {
+        $image = CarImage::findOrFail($id);
+        $carId = $image->car_id;
+        
+        // Rasmni storage dan o'chirish
+        if (Storage::disk('public')->exists($image->image_path)) {
+            Storage::disk('public')->delete($image->image_path);
+        }
+        
+        // Agar bu primary rasm bo'lsa va boshqa rasmlar bo'lsa, birinchisini primary qilish
+        if ($image->is_primary) {
+            $nextImage = CarImage::where('car_id', $carId)
+                ->where('id', '!=', $id)
+                ->orderBy('order')
+                ->first();
+            if ($nextImage) {
+                $nextImage->is_primary = true;
+                $nextImage->save();
+            }
+        }
+        
+        $image->delete();
+        
+        return response()->json(['success' => true]);
     }
 }

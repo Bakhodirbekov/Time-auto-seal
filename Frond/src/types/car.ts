@@ -17,6 +17,7 @@ export interface Car {
   engine_size?: string;
   condition?: string;
   location?: string;
+  contact_phone?: string;
   status: 'pending' | 'approved' | 'rejected' | 'sold';
   is_hot_deal: boolean;
   is_featured: boolean;
@@ -47,8 +48,9 @@ export interface User {
   name: string;
   phone?: string;
   email: string;
+  address?: string;
   avatar?: string;
   role: 'admin' | 'moderator' | 'user';
 }
 
-export type CategoryName = 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Electric';
+export type CategoryName = 'Sedan' | 'SUV' | 'Hatchback' | 'Coupe' | 'Electric' | 'Truck';
