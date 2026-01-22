@@ -5,6 +5,7 @@ import { CategoryTabs } from '@/components/CategoryTabs';
 import { CarCard } from '@/components/CarCard';
 import { BottomNav } from '@/components/BottomNav';
 import { AuthModal } from '@/components/AuthModal';
+import ImageBanner from '@/components/ImageBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { carService } from '@/services/carService';
 import { CategoryName, Car } from '@/types/car';
@@ -61,6 +62,16 @@ const Index = () => {
       <Header />
       
       <main className="safe-bottom">
+        <div className="px-4 pt-4">
+          <ImageBanner
+            images={[
+              '/images/bunner1.jpg',
+              '/images/bunner2.jpg',
+              '/images/bunner3.jpg'
+            ]}
+          />
+        </div>
+
         <SearchBar 
           value={searchQuery}
           onChange={setSearchQuery}
