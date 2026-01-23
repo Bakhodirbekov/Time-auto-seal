@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'insofauto/backend',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => 'ad4e3edf4cae9ae3d44d895ad10e9865d518b931',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -365,9 +365,9 @@
             ),
         ),
         'insofauto/backend' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => 'ad4e3edf4cae9ae3d44d895ad10e9865d518b931',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -76,6 +76,9 @@ php artisan cars:expire-timers
 
 # Start scheduler (required for timers)
 php artisan schedule:work
+
+#img link past
+php php artisan storage:link 
 ```
 
 ## Production Deployment

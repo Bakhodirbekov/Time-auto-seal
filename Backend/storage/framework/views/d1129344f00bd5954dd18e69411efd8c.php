@@ -41,7 +41,7 @@
 
                         <div class="text-xs text-gray-500"><?php echo e($car->brand); ?> <?php echo e($car->model); ?> (<?php echo e($car->year); ?>)</div>
                     </td>
-                    <td class="px-6 py-4 text-gray-700">$<?php echo e(number_format($car->price)); ?></td>
+                    <td class="px-6 py-4 text-gray-700"><?php echo e(number_format($car->price)); ?> so'm</td>
                     <td class="px-6 py-4">
                         <?php if($car->contact_phone): ?>
                             <a href="tel:<?php echo e($car->contact_phone); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg transition text-sm font-medium">
@@ -98,4 +98,4 @@
 </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Guccifer\Desktop\honest-wheels-main\honest-wheels-main\Backend\resources\views/admin/cars.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\Guccifer\Desktop\honest-wheels-main\Time-auto-seal\Backend\resources\views/admin/cars.blade.php ENDPATH**/ ?>
