@@ -142,7 +142,7 @@ export default function CarDetail() {
     { icon: Fuel, label: 'Yoqilg\'i', value: car.fuel_type || 'Noma\'lum' },
     { icon: Settings, label: 'Transmissiya', value: car.transmission || 'Noma\'lum' },
     { icon: Palette, label: 'Holati', value: car.condition || 'Noma\'lum' },
-    { icon: MapPin, label: 'Manzil', value: car.location || 'Noma\'lum' },
+    { icon: MapPin, label: 'Manzil', value: car.location || 'Sergeli' },
   ];
 
   return (
@@ -269,7 +269,7 @@ export default function CarDetail() {
           {/* Location */}
           <div className="flex items-center gap-1.5 mt-3 text-sm text-muted-foreground">
             <MapPin className="w-4 h-4" />
-            {car.location || 'Noma\'lum'}
+            {car.location || 'Sergeli'}
           </div>
         </div>
 
@@ -296,7 +296,12 @@ export default function CarDetail() {
           <h2 className="font-semibold text-foreground mb-3">Dvigatel</h2>
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-success" />
-            <span className="text-sm text-foreground">{car.engine_size || 'Noma\'lum'}</span>
+            <span className="text-sm text-foreground">
+              {car.fuel_type 
+                ? `${car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1)} Dvigatel`
+                : 'Noma\'lum Dvigatel'
+              }
+            </span>
           </div>
         </div>
 

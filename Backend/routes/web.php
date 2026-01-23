@@ -27,6 +27,8 @@ Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admi
     // Categories
     Route::get('/categories', [AdminPanelController::class, 'categories'])->name('categories');
     Route::post('/categories', [AdminPanelController::class, 'categoriesStore'])->name('categories.store');
+    Route::get('/categories/{id}/edit', [AdminPanelController::class, 'categoriesEdit'])->name('categories.edit');
+    Route::put('/categories/{id}', [AdminPanelController::class, 'categoriesUpdate'])->name('categories.update');
     Route::delete('/categories/{id}', [AdminPanelController::class, 'categoriesDestroy'])->name('categories.destroy');
 
     Route::get('/users', [AdminPanelController::class, 'users'])->name('users');

@@ -224,6 +224,25 @@ class AdminPanelController extends Controller
         return back()->with('success', 'Kategoriya qo\'shildi.');
     }
 
+    public function categoriesEdit($id)
+    {
+        $category = Category::findOrFail($id);
+        $categories = Category::with('subcategories')->withCount('cars')->orderBy('order')->get();
+        return view('admin.categories', compact('categories', 'category'));
+    }
+
+    public function categoriesUpdate(Request $request, $id)
+    {
+        $request->validate(['name' => 'required|string|max:255']);
+        $category = Category::findOrFail($id);
+        $category->update([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'is_active' => $request->boolean('is_active'),
+        ]);
+        return back()->with('success', 'Kategoriya yangilandi.');
+    }
+
     public function categoriesDestroy($id)
     {
         Category::destroy($id);
