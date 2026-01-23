@@ -42,7 +42,7 @@ export function FilterModal({ isOpen, onClose, onApply }: FilterModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm fade-in">
-      <div className="fixed inset-x-0 bottom-0 max-h-[85vh] bg-card rounded-t-3xl shadow-xl slide-up overflow-hidden" style={{ top: '140px' }}>
+      <div className="fixed inset-x-0 bottom-0 max-h-[85vh] bg-card rounded-t-3xl shadow-xl slide-up overflow-hidden" style={{ top: 'inherit' }}>
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border px-4 py-4 flex items-center justify-between">
           <h2 className="text-lg font-bold">Filterlar</h2>

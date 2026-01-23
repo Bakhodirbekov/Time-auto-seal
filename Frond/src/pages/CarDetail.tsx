@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Share2, Heart, Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Settings, Palette, CheckCircle, Lock } from 'lucide-react';
 import { CountdownTimer } from '@/components/CountdownTimer';
+import { ImageModal } from '@/components/ImageModal';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
@@ -19,6 +20,7 @@ export default function CarDetail() {
   const [currentImage, setCurrentImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -145,9 +147,21 @@ export default function CarDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        images={allImageUrls}
+        currentIndex={currentImage}
+        onClose={() => setIsModalOpen(false)}
+        onImageChange={setCurrentImage}
+      />
+
       {/* Image Gallery */}
       <div className="relative">
-        <div className="aspect-[4/3] bg-muted">
+        <div 
+          className="aspect-[4/3] bg-muted cursor-pointer hover:opacity-90 transition-opacity"
+          onClick={() => setIsModalOpen(true)}
+        >
           <img
             src={allImageUrls[currentImage] || '/placeholder-car.png'}
             alt={`${car.brand} ${car.model}`}
