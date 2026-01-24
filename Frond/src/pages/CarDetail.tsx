@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Heart, Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Settings, Palette, CheckCircle, Lock } from 'lucide-react';
+import { ArrowLeft, Share2, Heart, Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Settings, Palette, CheckCircle, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CountdownTimer } from '@/components/CountdownTimer';
 import { ImageModal } from '@/components/ImageModal';
 import { useCountdown } from '@/hooks/useCountdown';
@@ -136,6 +136,14 @@ export default function CarDetail() {
 
   const allImageUrls = car.images?.map(img => img.image_url) || [];
 
+  const nextImage = () => {
+    setCurrentImage((prev) => (prev + 1) % allImageUrls.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImage((prev) => (prev - 1 + allImageUrls.length) % allImageUrls.length);
+  };
+
   const specs = [
     { icon: Calendar, label: 'Yil', value: car.year },
     { icon: Gauge, label: 'Masofa', value: car.mileage && car.mileage !== null ? `${car.mileage.toLocaleString()} km` : 'Noma\'lum' },
@@ -157,37 +165,75 @@ export default function CarDetail() {
       />
 
       {/* Image Gallery */}
-      <div className="relative">
+      <div className="relative group bg-card">
         <div 
-          className="aspect-[4/3] bg-muted cursor-pointer hover:opacity-90 transition-opacity"
+          className="aspect-[16/9] md:aspect-[21/9] bg-muted cursor-pointer relative overflow-hidden"
           onClick={() => setIsModalOpen(true)}
         >
           <img
             src={allImageUrls[currentImage] || '/placeholder-car.png'}
             alt={`${car.brand} ${car.model}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
+
+          {/* Image Navigation Arrows */}
+          {allImageUrls.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/40"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/40"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
         </div>
 
-        {/* Navigation */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        {/* Thumbnails Strip */}
+        {allImageUrls.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto px-4 py-3 no-scrollbar bg-card border-b">
+            {allImageUrls.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentImage(idx)}
+                className={cn(
+                  'flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all',
+                  idx === currentImage 
+                    ? 'border-accent ring-2 ring-accent/20' 
+                    : 'border-transparent opacity-60 hover:opacity-100'
+                )}
+              >
+                <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Navigation Overlays */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
           <button
             onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center pointer-events-auto shadow-sm"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pointer-events-auto">
             <button 
               onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center">
+              className="w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
               <Share2 className="w-5 h-5" />
             </button>
             <button
               onClick={handleFavorite}
               disabled={favoriteLoading}
               className={cn(
-                'w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center transition-all',
+                'w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center transition-all shadow-sm',
                 isFavorite ? 'bg-accent text-accent-foreground' : 'bg-card/90',
                 favoriteLoading && 'opacity-50 cursor-not-allowed'
               )}
@@ -197,33 +243,22 @@ export default function CarDetail() {
           </div>
         </div>
 
-        {/* Timer Badge */}
-        {!isExpired && (
-          <div className="absolute bottom-4 left-4">
+        {/* Badges Over Image */}
+        <div className="absolute bottom-16 left-4 flex flex-col gap-2 pointer-events-none">
+          {!isExpired && (
             <CountdownTimer timerEndAt={car.timer_end_at} />
-          </div>
-        )}
+          )}
+          {car.is_hot_deal && (
+            <div className="bg-accent text-accent-foreground px-3 py-1.5 rounded-lg text-sm font-bold w-fit shadow-lg">
+              🔥 Hot Deal
+            </div>
+          )}
+        </div>
 
-        {/* Hot Deal Badge */}
-        {car.is_hot_deal && (
-          <div className="absolute bottom-4 right-4 bg-accent text-accent-foreground px-3 py-1.5 rounded-lg text-sm font-bold">
-            🔥 Hot Deal
-          </div>
-        )}
-
-        {/* Image Dots */}
+        {/* Image Counter Badge */}
         {allImageUrls.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {allImageUrls.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentImage(idx)}
-                className={cn(
-                  'w-2 h-2 rounded-full transition-all',
-                  idx === currentImage ? 'bg-card w-5' : 'bg-card/50'
-                )}
-              />
-            ))}
+          <div className="absolute bottom-16 right-4 bg-black/50 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded flex items-center gap-1 font-medium">
+            <span className="text-accent">{currentImage + 1}</span> / {allImageUrls.length}
           </div>
         )}
       </div>

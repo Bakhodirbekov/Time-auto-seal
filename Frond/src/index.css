@@ -164,4 +164,13 @@
   .safe-bottom {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

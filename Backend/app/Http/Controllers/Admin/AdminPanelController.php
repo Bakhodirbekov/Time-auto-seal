@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 
 class AdminPanelController extends Controller
 {
@@ -302,8 +303,136 @@ class AdminPanelController extends Controller
 
     public function admins()
     {
-        $admins = User::whereIn('role', ['admin', 'moderator'])->orderBy('name')->get();
+        $user = auth()->user();
+        $query = User::whereIn('role', ['admin', 'moderator', 'superadmin'])->orderBy('name');
+
+        if ($user->role === 'admin') {
+            // Admin faqat moderatorlarni ko'radi
+            $query->where('role', 'moderator');
+        }
+        // Superadmin hamma admin va moderatorlarni ko'radi
+
+        $admins = $query->get();
         return view('admin.admins', compact('admins'));
+    }
+
+    public function adminsCreate()
+    {
+        return view('admin.create_admin');
+    }
+
+    public function adminsStore(Request $request)
+    {
+        $user = auth()->user();
+        
+        $allowedRoles = ['moderator'];
+        if ($user->role === 'superadmin') {
+            $allowedRoles[] = 'admin';
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+            'role' => 'required|in:' . implode(',', $allowedRoles),
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        return redirect()->route('admin.admins.index')->with('success', 'Xodim muvaffaqiyatli qo\'shildi.');
+    }
+
+    public function adminsEdit($id)
+    {
+        $currentUser = auth()->user();
+        $admin = User::findOrFail($id);
+
+        // Xavfsizlik tekshiruvi
+        if ($currentUser->role === 'admin' && $admin->role !== 'moderator') {
+            return redirect()->route('admin.admins.index')->with('error', 'Siz faqat moderatorlarni tahrirlashingiz mumkin.');
+        }
+
+        return view('admin.edit_admin', compact('admin'));
+    }
+
+    public function adminsUpdate(Request $request, $id)
+    {
+        $currentUser = auth()->user();
+        $user = User::findOrFail($id);
+
+        // Xavfsizlik tekshiruvi
+        if ($currentUser->role === 'admin' && $user->role !== 'moderator') {
+            return redirect()->route('admin.admins.index')->with('error', 'Siz faqat moderatorlarni tahrirlashingiz mumkin.');
+        }
+
+        $allowedRoles = ['moderator'];
+        if ($currentUser->role === 'superadmin') {
+            $allowedRoles[] = 'admin';
+            $allowedRoles[] = 'superadmin';
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'role' => 'required|in:' . implode(',', $allowedRoles),
+            'password' => 'nullable|min:6|confirmed',
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.admins.index')->with('success', 'Ma\'lumotlar yangilandi.');
+    }
+
+    public function adminsDestroy($id)
+    {
+        $currentUser = auth()->user();
+        $user = User::findOrFail($id);
+        
+        if ($user->id === $currentUser->id) {
+            return back()->with('error', 'O\'zingizni o\'chira olmaysiz.');
+        }
+
+        if ($currentUser->role === 'admin' && $user->role !== 'moderator') {
+            return back()->with('error', 'Siz faqat moderatorlarni o\'chirishingiz mumkin.');
+        }
+
+        $user->delete();
+        return back()->with('success', 'Xodim o\'chirildi.');
+    }
+
+    public function profileUpdate(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'password' => 'nullable|min:6|confirmed',
+        ]);
+
+        $user->name = $request->name;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profilingiz yangilandi.');
     }
 
     public function login(Request $request)

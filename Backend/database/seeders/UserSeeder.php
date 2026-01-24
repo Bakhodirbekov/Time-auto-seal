@@ -10,6 +10,16 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Create Super Admin
+        User::create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@insofauto.com',
+            'password' => Hash::make('superadmin123'),
+            'role' => 'superadmin',
+            'phone' => '+998900000000',
+            'is_blocked' => false,
+        ]);
+
         // Create Admin User
         User::create([
             'name' => 'Admin User',

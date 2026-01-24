@@ -108,7 +108,7 @@ export function ImageModal({
 
       {/* Thumbnail Strip */}
       {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[55] flex gap-2 bg-black/50 backdrop-blur-sm p-3 rounded-lg max-w-full overflow-x-auto">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[55] flex gap-2 bg-black/40 backdrop-blur-md p-2 rounded-xl max-w-[90vw] overflow-x-auto no-scrollbar border border-white/10">
           {images.map((img, idx) => (
             <button
               key={idx}
@@ -117,10 +117,10 @@ export function ImageModal({
                 onImageChange(idx);
               }}
               className={cn(
-                'flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all',
+                'flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all duration-300',
                 idx === localIndex 
-                  ? 'border-white' 
-                  : 'border-white/30 hover:border-white/50'
+                  ? 'border-accent scale-110 shadow-lg' 
+                  : 'border-transparent opacity-50 hover:opacity-100 hover:scale-105'
               )}
               type="button"
             >

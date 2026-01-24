@@ -99,10 +99,16 @@
                     <i class="fas fa-cog w-6"></i>
                     <span>Sozlamalar</span>
                 </a>
-                <a href="{{ route('admin.admins') }}" class="nav-item {{ request()->routeIs('admin.admins') ? 'active' : '' }}">
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
+                <a href="{{ route('admin.banners.index') }}" class="nav-item {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
+                    <i class="fas fa-image w-6"></i>
+                    <span>Bannerlar</span>
+                </a>
+                <a href="{{ route('admin.admins.index') }}" class="nav-item {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}">
                     <i class="fas fa-user-shield w-6"></i>
                     <span>Adminlar</span>
                 </a>
+                @endif
                 
                 <div class="pt-4 mt-4 border-t border-secondary"></div>
                 

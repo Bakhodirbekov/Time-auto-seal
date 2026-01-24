@@ -100,7 +100,9 @@ Route::middleware(['auth:sanctum', 'role:admin,moderator'])->prefix('admin')->gr
     // User Management (admin only)
     Route::middleware('role:admin')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index']);
+        Route::post('/users', [AdminUserController::class, 'store']);
         Route::get('/users/{id}', [AdminUserController::class, 'show']);
+        Route::put('/users/{id}', [AdminUserController::class, 'update']);
         Route::post('/users/{id}/block', [AdminUserController::class, 'block']);
         Route::post('/users/{id}/unblock', [AdminUserController::class, 'unblock']);
         Route::put('/users/{id}/role', [AdminUserController::class, 'updateRole']);

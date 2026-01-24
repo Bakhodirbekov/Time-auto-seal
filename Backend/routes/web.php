@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminPanelController;
+use App\Http\Controllers\Admin\BannerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -31,6 +32,16 @@ Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admi
     Route::put('/categories/{id}', [AdminPanelController::class, 'categoriesUpdate'])->name('categories.update');
     Route::delete('/categories/{id}', [AdminPanelController::class, 'categoriesDestroy'])->name('categories.destroy');
 
+    // Banners - ADMIN & SUPERADMIN ONLY
+    Route::middleware(['role:admin,superadmin'])->group(function() {
+        Route::get('/banners', [BannerController::class, 'index'])->name('banners.index');
+        Route::get('/banners/create', [BannerController::class, 'create'])->name('banners.create');
+        Route::post('/banners', [BannerController::class, 'store'])->name('banners.store');
+        Route::get('/banners/{banner}/edit', [BannerController::class, 'edit'])->name('banners.edit');
+        Route::put('/banners/{banner}', [BannerController::class, 'update'])->name('banners.update');
+        Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
+    });
+
     Route::get('/users', [AdminPanelController::class, 'users'])->name('users');
     Route::post('/users/{id}/block', [AdminPanelController::class, 'usersBlock'])->name('users.block');
     Route::post('/users/{id}/unblock', [AdminPanelController::class, 'usersUnblock'])->name('users.unblock');
@@ -42,10 +53,25 @@ Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admi
     Route::post('/timers/{id}/expire', [AdminPanelController::class, 'timersExpire'])->name('timers.expire');
 
     Route::get('/notifications', [AdminPanelController::class, 'notifications'])->name('notifications');
-    Route::get('/admins', [AdminPanelController::class, 'admins'])->name('admins');
     
+    // Admin & Superadmin ONLY routes (Staff Management)
+    Route::middleware(['role:admin,superadmin'])->group(function() {
+        Route::get('/admins', [AdminPanelController::class, 'admins'])->name('admins.index');
+        Route::get('/admins/create', [AdminPanelController::class, 'adminsCreate'])->name('admins.create');
+        Route::post('/admins', [AdminPanelController::class, 'adminsStore'])->name('admins.store');
+        Route::get('/admins/{id}/edit', [AdminPanelController::class, 'adminsEdit'])->name('admins.edit');
+        Route::put('/admins/{id}', [AdminPanelController::class, 'adminsUpdate'])->name('admins.update');
+        Route::delete('/admins/{id}', [AdminPanelController::class, 'adminsDestroy'])->name('admins.destroy');
+    });
+
     Route::get('/settings', [AdminPanelController::class, 'settings'])->name('settings');
     Route::post('/settings', [AdminPanelController::class, 'settingsUpdate'])->name('settings.update');
+    Route::post('/profile', [AdminPanelController::class, 'profileUpdate'])->name('profile.update');
+});
+
+// API Routes for Frontend
+Route::middleware('api')->prefix('api')->group(function() {
+    Route::get('/banners', [\App\Http\Controllers\Api\BannerApiController::class, 'index']);
 });
 
 // Basic Auth Routes (Simplified)

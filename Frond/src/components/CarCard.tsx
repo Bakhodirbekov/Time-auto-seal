@@ -2,7 +2,7 @@ import { Car } from '@/types/car';
 import { CountdownTimer } from './CountdownTimer';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useAuth } from '@/contexts/AuthContext';
-import { Heart, MapPin, Gauge, Fuel } from 'lucide-react';
+import { Heart, MapPin, Gauge, Fuel, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -80,19 +80,47 @@ export function CarCard({ car }: CarCardProps) {
     }
   };
 
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImageIndex((prev) => (prev + 1) % allImageUrls.length);
+  };
+
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImageIndex((prev) => (prev - 1 + allImageUrls.length) % allImageUrls.length);
+  };
+
   return (
     <div 
       onClick={handleClick}
       className="bg-card rounded-2xl shadow-card card-hover cursor-pointer overflow-hidden"
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[16/9] overflow-hidden group">
         <img
           src={allImageUrls[imageIndex] || '/placeholder-car.png'}
           alt={`${car.brand} ${car.model}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         
+        {/* Navigation Arrows */}
+        {allImageUrls.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/40"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/40"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </>
+        )}
+
         {/* Hot Deal Badge */}
         {car.is_hot_deal && (
           <div className="absolute top-3 left-3 bg-accent text-accent-foreground px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1">
@@ -122,7 +150,7 @@ export function CarCard({ car }: CarCardProps) {
 
         {/* Image Dots */}
         {allImageUrls.length > 1 && (
-          <div className="absolute bottom-3 left-3 flex gap-1">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full bg-black/10 backdrop-blur-[2px]">
             {allImageUrls.map((_, idx) => (
               <button
                 key={idx}
@@ -131,8 +159,8 @@ export function CarCard({ car }: CarCardProps) {
                   setImageIndex(idx);
                 }}
                 className={cn(
-                  'w-1.5 h-1.5 rounded-full transition-all',
-                  idx === imageIndex ? 'bg-card w-4' : 'bg-card/50'
+                  'w-1.5 h-1.5 rounded-full transition-all duration-300',
+                  idx === imageIndex ? 'bg-white w-4' : 'bg-white/50'
                 )}
               />
             ))}
